@@ -23,16 +23,16 @@ def receiveSerial():
     global ser1
     pub = rospy.Publisher('motor_ticks', MotorTicks, queue_size = 1)
     while not rospy.is_shutdown():
-        try:
+        # try:
             # TODO: add odometry ####################################################
-            response = ser1.readline()
+            # response = ser1.readline()
             #ticks = map(int, response.split(';'))
             #print(ticks[0])
             #print(ticks[1])
             #pub.publish(MotorTicks(ticks[0], ticks[1]))
-        except Exception as ex:
-            print ex
-            pass
+        # except Exception as ex:
+        #     print ex
+        #     pass
         r.sleep()
 
 
@@ -47,14 +47,20 @@ def callback(data):
     #rospy.loginfo("Speed: %f", speed)
 
 def calc_checksum(data):
+    # rospy.loginfo(data)
     sum = 0
     for b in data:
-        sum += b
+        sum += int(b)
     sum -= 0x02 # remove protocol header
 
     sum = 0 - sum
     return (sum & 0xFF)
 
+def to_int16(value):
+    byte_stream = struct.pack('h', value)
+    b1 = struct.unpack('BB', byte_stream)
+    # rospy.loginfo(b1)
+    return b1
 
 def main():
     global speed, direction, timeout, ser1, ser2
@@ -102,12 +108,12 @@ def main():
         speed_command_r = [0x02, 0x06, 0x07]
 
         # speed values, -1000 to 1000
-        speed_command_l.append(struct.pack('h', motorL * 1000))
-        speed_command_r.append(struct.pack('h', motorR * 1000))
+        speed_command_l.extend(to_int16(motorL * 1000))
+        speed_command_r.extend(to_int16(motorR * 1000))
 
         # values for direction, should be zero
-        speed_command_l.append([0x00, 0x00])
-        speed_command_r.append([0x00, 0x00])
+        speed_command_l.extend([0x00, 0x00])
+        speed_command_r.extend([0x00, 0x00])
 
         # calculate checksum
         speed_command_l.append(calc_checksum(speed_command_l))
