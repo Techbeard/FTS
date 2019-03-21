@@ -62,6 +62,25 @@ def to_int16(value):
     # rospy.loginfo(b1)
     return b1
 
+def generate_drive_command(speed, steer):
+    # phail hoverboard protocol, see protocol.c in his repository
+    cmd = [0x02, 0x00, ord('W'), 0x07]
+    speed_command_r = [0x02, 0x06, 0x07]
+
+    # speed values, -1000 to 1000
+    cmd.extend(to_int16(speed))
+
+    # direction values
+    cmd.extend(to_int16(steer))
+
+    # set length of data (will be data + checksum, so: current packet - header + checksum = -1)
+    cmd[1] = len(cmd) - 1
+
+    # calculate checksum
+    cmd.append(calc_checksum(cmd))
+    
+    return cmd
+
 def main():
     global speed, direction, timeout, ser1, ser2
     rospy.init_node('hardware_driver')
@@ -76,7 +95,7 @@ def main():
         connected = False
         pass
 
-    rospy.Subscriber("drive_command", Twist, callback)
+    rospy.Subscriber("cmd_vel", Twist, callback)
     r = rospy.Rate(100) # Hz
     vel_tp = [0] * 50 # 50 sample low-pass for speed
     dir_tp = [0] * 10 # 10 sample low-pass for steering
@@ -103,21 +122,8 @@ def main():
         # binR = struct.pack('f', motorR)
         # binL = struct.pack('f', motorL)
 
-        # phail hoverboard protocol, see protocol.c in his repository
-        speed_command_l = [0x02, 0x06, 0x07]
-        speed_command_r = [0x02, 0x06, 0x07]
-
-        # speed values, -1000 to 1000
-        speed_command_l.extend(to_int16(motorL * 1000))
-        speed_command_r.extend(to_int16(motorR * 1000))
-
-        # values for direction, should be zero
-        speed_command_l.extend([0x00, 0x00])
-        speed_command_r.extend([0x00, 0x00])
-
-        # calculate checksum
-        speed_command_l.append(calc_checksum(speed_command_l))
-        speed_command_r.append(calc_checksum(speed_command_r))
+        speed_command_l = generate_drive_command(motorL * 1000, 0)
+        speed_command_r = generate_drive_command(motorR * 1000, 0)
         
         debug_str = "[Motor command] left:" + str(speed_command_l) + "  right: " + str(speed_command_r)
         rospy.loginfo(debug_str)
