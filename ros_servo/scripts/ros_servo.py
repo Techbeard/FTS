@@ -13,7 +13,7 @@ ser2 = None
 
 TIMEOUT      = 10
 MAX_SPEED    = 1 # m/s
-MAX_STEERING = 0.1 # rad/s
+MAX_STEERING = 0.3 # rad/s
 
 import threading
 
@@ -78,7 +78,7 @@ def generate_drive_command(speed, steer):
 
     # calculate checksum
     cmd.append(calc_checksum(cmd))
-    
+
     return cmd
 
 def main():
@@ -129,10 +129,8 @@ def main():
         rospy.loginfo(debug_str)
 
         if connected:
-            for b in speed_command_l:
-                ser1.write(b)
-            for b in speed_command_r:
-                ser2.write(b)
+            ser1.write(speed_command_l)
+            ser2.write(speed_command_r)
 
         timeout+=1
         r.sleep()
