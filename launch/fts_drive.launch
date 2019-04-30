@@ -1,0 +1,7 @@
+<launch>
+  
+
+  <node pkg="fts_drive" type="fts_drive" name="fts_drive" output="screen">
+    
+  </node>
+</launch>

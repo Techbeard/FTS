@@ -1,0 +1,6 @@
+<launch>
+  <arg name="set_frame_id" default="base_scan"/>
+
+  <node pkg="asr_mild_base_laserscanner" type="asr_mild_base_laserscanner" name="asr_mild_base_laserscanner" output="screen">
+  </node>
+</launch>
