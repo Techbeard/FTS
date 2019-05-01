@@ -57,9 +57,14 @@ def calc_checksum(data):
     return (sum & 0xFF)
 
 def to_int16(value):
-    byte_stream = struct.pack('h', value)
-    b1 = struct.unpack('BB', byte_stream)
+    byte_stream = struct.pack('h', value) # int16_t
+    b1 = struct.unpack('BB', byte_stream) # two uint8_t s
     # rospy.loginfo(b1)
+    return b1
+
+def to_int32(value):
+    byte_stream = struct.pack('i', value) # int32_t
+    b1 = struct.unpack('BBBB', byte_stream)
     return b1
 
 def generate_drive_command(speed, steer):
@@ -80,6 +85,24 @@ def generate_drive_command(speed, steer):
     cmd.append(calc_checksum(cmd))
 
     return cmd
+
+def generate_speed_command(speedL, speedR, maxPower = 600, minPower = -600, minSpeed = 40):
+    cmd = [0x02, 0x00, ord('W'), 0x03]
+
+    cmd.extend(to_int32(speedL))
+    cmd.extend(to_int32(speedR))
+    cmd.extend(to_int32(maxPower))
+    cmd.extend(to_int32(minPower))
+    cmd.extend(to_int32(minSpeed))
+
+    # set length of data (will be data + checksum, so: current packet - header + checksum = -1)
+    cmd[1] = len(cmd) - 1
+
+    # calculate checksum
+    cmd.append(calc_checksum(cmd))
+
+    return cmd
+
 
 def main():
     global speed, direction, timeout, ser1, ser2
