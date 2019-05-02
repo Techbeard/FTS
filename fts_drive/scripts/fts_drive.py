@@ -94,6 +94,10 @@ def generate_speed_command(speedL, speedR, maxPower = 600, minPower = -600, minS
     cmd.extend(to_int32(maxPower))
     cmd.extend(to_int32(minPower))
     cmd.extend(to_int32(minSpeed))
+    cmd.extend(to_int32(0)) # placeholder for reading back diff mm/s 0
+    cmd.extend(to_int32(0)) # placeholder for reading back diff mm/s 1
+    cmd.extend(to_int32(0)) # placeholder for reading back power demand 0
+    cmd.extend(to_int32(0)) # placeholder for reading back power demand 1
 
     # set length of data (will be data + checksum, so: current packet - header + checksum = -1)
     cmd[1] = len(cmd) - 1
