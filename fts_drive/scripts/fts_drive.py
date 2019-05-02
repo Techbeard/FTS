@@ -139,21 +139,24 @@ def main():
         #rospy.loginfo("Speed: %f", tx_speed)
         #rospy.loginfo("Steering: %f", tx_dir)
 
-        motorR = tx_speed + tx_dir
-        motorL= tx_speed - tx_dir
+        motorR = (tx_speed + tx_dir) * 1000 # convert to tank control and mm/s
+        motorL = (tx_speed - tx_dir) * 1000
 
         # binR = struct.pack('f', motorR)
         # binL = struct.pack('f', motorL)
 
-        speed_command_l = generate_drive_command(motorL * 1000, 0)
-        speed_command_r = generate_drive_command(motorR * 1000, 0)
+        # command_l = generate_drive_command(motorL * 1000, 0)
+        # command_r = generate_drive_command(motorR * 1000, 0)
+        command_l = generate_speed_command(motorL, motorL)
+        command_r = generate_speed_command(motorR, motorR)
+
         
-        debug_str = "[Motor command] left:" + str(speed_command_l) + "  right: " + str(speed_command_r)
+        debug_str = "[Motor command] left:" + str(command_l) + "  right: " + str(command_r)
         rospy.loginfo(debug_str)
 
         if connected:
-            ser1.write(speed_command_l)
-            ser2.write(speed_command_r)
+            ser1.write(command_l)
+            ser2.write(command_r)
 
         timeout+=1
         r.sleep()
