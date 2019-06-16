@@ -38,9 +38,9 @@ if __name__ == '__main__':
                          "base_link",           # parent node
                          "base_laser")          # child node
 
-                         """ base_laser2 transform (the laser rangefinder) """
-        br.sendTransform((0.6, 0.0, 0.01),   # translation (x,y,z) in meters
-                         (0.0,  0.0, 0.0, 1.0), # rotation
+        """ base_laser2 transform (the laser rangefinder2) """
+        br.sendTransform((-0.6, 0.0, 0.01),   # translation (x,y,z) in meters
+                         (0.0,  0.0, 1.0, 0.0), # rotation
                          rospy.Time.now(),      # time
                          "base_link",           # parent node
                          "base_laser2")          # child node

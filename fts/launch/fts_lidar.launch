@@ -2,14 +2,14 @@
   
   <node pkg="asr_mild_base_laserscanner" type="sickpls" name="sickpls" output="screen">
   	<param name="serial" value="/dev/ttyUSB0"/>
-    <param name="tf" value="base_laser"/>
+    <param name="tfvar" value="base_laser"/>
   	<!-- <param name="topic" value="/scan"/> -->
   </node>
 
   
   <node pkg="asr_mild_base_laserscanner" type="sickpls" name="sickpls2" output="screen">
   	<param name="serial" value="/dev/ttyUSB1"/>
-    <param name="tf" value="base_laser2"/>
+    <param name="tfvar" value="base_laser2"/>
   	<!-- <param name="topic" value="/scan2"/> -->
   </node>
 </launch>
