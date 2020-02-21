@@ -1,12 +1,13 @@
 <launch>
-  
-  <node pkg="cob_sick_s300" type="cob_sick_s300" name="driverSickFront" output="screen">
-  	<param name="port" value="/dev/ttyUSB2"/>
+    <param name="port" value="/dev/ttyUSB2"/>
     <param name="scan_duration" value="0.025"/>
    	<param name="scan_cycle_time" value="0.040"/>
     <param name="inverted" value="true"/>         
    	<param name="scan_id" value="7"/>
     <param name="frame_id" value="base_laser_front"/>
+  
+  <node pkg="cob_sick_s300" type="cob_sick_s300" name="driverSickFront" output="screen">
+  
   </node>
 
   
