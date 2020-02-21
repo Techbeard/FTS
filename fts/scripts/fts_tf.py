@@ -31,19 +31,19 @@ if __name__ == '__main__':
                          "base_link",      # parent node
                          "base_footprint")           # child node
 
-        """ base_laser transform (the laser rangefinder) """
-        br.sendTransform((0.6, 0.0, 0.01),   # translation (x,y,z) in meters
+        """ base_laser_front transform (the laser rangefinder) """
+        br.sendTransform((0.4, 0, 0.0),   # translation (x,y,z) in meters
+                         tf.transformations.quaternion_from_euler(0.0,  0.0, 45), # rotation
+                         rospy.Time.now(),      # time
+                         "base_link",           # parent node
+                         "base_laser_link")          # child node
+
+        """ base_laser_rear transform (the laser rangefinder2) """
+        br.sendTransform((0.8, 0.68, 0.0),   # translation (x,y,z) in meters
                          (0.0,  0.0, 0.0, 1.0), # rotation
                          rospy.Time.now(),      # time
-                         "base_link",           # parent node
-                         "base_laser")          # child node
-
-        """ base_laser2 transform (the laser rangefinder2) """
-        br.sendTransform((-0.6, 0.0, 0.01),   # translation (x,y,z) in meters
-                         (0.0,  0.0, 1.0, 0.0), # rotation
-                         rospy.Time.now(),      # time
-                         "base_link",           # parent node
-                         "base_laser2")          # child node
+                         "base_laser_link",           # parent node
+                         "base_laser_rear")          # child node
 
        
 

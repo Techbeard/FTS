@@ -1,15 +1,23 @@
 <launch>
   
-  <node pkg="asr_mild_base_laserscanner" type="sickpls" name="sickpls" output="screen">
-  	<param name="serial" value="/dev/ttyUSB0"/>
-    <param name="vartf" value="base_laser"/>
-  	<!-- <param name="topic" value="/scan"/> -->
+  <node pkg="cob_sick_s300" type="cob_sick_s300" name="driverSickFront" output="screen">
+  	<param name="port" value="/dev/ttyUSB2"/>
+    <param name="scan_duration" value="0.025"/>
+   	<param name="scan_cycle_time" value="0.040"/>
+    <param name="inverted" value="true"/>         
+   	<param name="scan_id" value="7"/>
+    <param name="frame_id" value="base_laser_front"/>
   </node>
 
   
-  <node pkg="asr_mild_base_laserscanner" type="sickpls" name="sickpls2" output="screen">
-  	<param name="serial" value="/dev/ttyUSB1"/>
-    <param name="vartf" value="base_laser2"/>
-  	<!-- <param name="topic" value="/scan2"/> -->
+  <node pkg="cob_sick_s300" type="cob_sick_s300" name="driverSickRear" output="screen">
+  	<param name="port" value="/dev/ttyUSB3"/>
+    <param name="scan_duration" value="0.025"/> <!--no info about that in SICK-docu, but 0.025 is believable and looks good in rviz (so übernommen auf orgonal config)-->
+    <param name="scan_cycle_time" value="0.040"/> <!--SICK-docu says S300 scans every 40ms--> -->
+    <param name="inverted" value="true"/>         
+   	<param name="scan_id" value="7"/>
+    <param name="frame_id" value="base_laser_rear"/>
+
+
   </node>
 </launch>

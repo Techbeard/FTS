@@ -1,7 +1,8 @@
 <launch>
-  
-
   <node pkg="fts_drive" type="fts_drive" name="fts_drive" output="screen">
+    <param name="port1" value="/dev/ttyUSB0"/>
+    <param name="port2" value="/dev/ttyUSB1"/>
+
     
   </node>
 </launch>

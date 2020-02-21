@@ -18,6 +18,7 @@ MAX_STEERING = 0.3 # rad/s
 import threading
 
 
+
 def receiveSerial():
     r = rospy.Rate(250) # Hz
     global ser1
@@ -113,8 +114,8 @@ def main():
     rospy.init_node('hardware_driver')
 
     try:
-        ser1 = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
-        ser2 = serial.Serial('/dev/ttyUSB1', 115200, timeout=1)
+        ser1 = serial.Serial('/dev/ttyUSB0/', 115200, timeout=1)
+        ser2 = serial.Serial('/dev/ttyUSB1/', 115200, timeout=1)
         rospy.logwarn("Using serial interface: %s, %s", ser1.name, ser2.name)
         connected = True
     except Exception:
