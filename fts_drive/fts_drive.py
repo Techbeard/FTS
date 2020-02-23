@@ -150,8 +150,8 @@ def main():
 
     rospy.Subscriber("cmd_vel", Twist, callback)
     r = rospy.Rate(100) # Hz
-    vel_tp = [0] * 50 # 50 sample low-pass for speed
-    dir_tp = [0] * 10 # 10 sample low-pass for steering
+    vel_tp = [0] * 10 # 50 sample low-pass for speed
+    dir_tp = [0] * 5 # 10 sample low-pass for steering
 
     thread = threading.Thread(target=receiveSerial, args=[])
     thread.daemon = True
