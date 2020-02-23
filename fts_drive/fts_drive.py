@@ -47,64 +47,85 @@ def callback(data):
     timeout = 0
     #rospy.loginfo("Speed: %f", speed)
 
-def calc_checksum(data):
-    # rospy.loginfo(data)
-    sum = 0
-    for b in data:
-        sum += int(b)
-    sum -= 0x02 # remove protocol header
+# def calc_checksum(data):
+#     # rospy.loginfo(data)
+#     sum = 0
+#     for b in data:
+#         sum += int(b)
+#     sum -= 0x02 # remove protocol header
 
-    sum = 0 - sum
-    return (sum & 0xFF)
+#     sum = 0 - sum
+#     return (sum & 0xFF)
 
-def to_int16(value):
-    byte_stream = struct.pack('h', value) # int16_t
-    b1 = struct.unpack('BB', byte_stream) # two uint8_t s
-    # rospy.loginfo(b1)
-    return b1
+# def to_int16(value):
+#     byte_stream = struct.pack('h', value) # int16_t
+#     b1 = struct.unpack('BB', byte_stream) # two uint8_t s
+#     # rospy.loginfo(b1)
+#     return b1
 
-def to_int32(value):
-    byte_stream = struct.pack('i', value) # int32_t
-    b1 = struct.unpack('BBBB', byte_stream)
-    return b1
+# def to_int32(value):
+#     byte_stream = struct.pack('i', value) # int32_t
+#     b1 = struct.unpack('BBBB', byte_stream)
+#     return b1
 
-def generate_drive_command(speed, steer):
-    # phail hoverboard protocol, see protocol.c in his repository
-    cmd = [0x02, 0x00, ord('W'), 0x07]
-    speed_command_r = [0x02, 0x06, 0x07]
+# def generate_drive_command(speed, steer):
+#     # phail hoverboard protocol, see protocol.c in his repository
+#     cmd = [0x02, 0x00, ord('W'), 0x07]
+#     speed_command_r = [0x02, 0x06, 0x07]
 
-    # speed values, -1000 to 1000
-    cmd.extend(to_int16(speed))
+#     # speed values, -1000 to 1000
+#     cmd.extend(to_int16(speed))
+
+#     # direction values
+#     cmd.extend(to_int16(steer))
+
+#     # set length of data (will be data + checksum, so: current packet - header + checksum = -1)
+#     cmd[1] = len(cmd) - 1
+
+#     # calculate checksum
+#     cmd.append(calc_checksum(cmd))
+
+#     return cmd
+
+# def generate_speed_command(speedL, speedR, maxPower = 600, minPower = -600, minSpeed = 40):
+#     cmd = [0x02, 0x00, ord('W'), 0x03]
+
+#     cmd.extend(to_int32(speedL))
+#     cmd.extend(to_int32(speedR))
+#     # cmd.extend(to_int32(maxPower))
+#     # cmd.extend(to_int32(minPower))
+#     # cmd.extend(to_int32(minSpeed))
+#     # cmd.extend(to_int32(0)) # placeholder for reading back diff mm/s 0
+#     # cmd.extend(to_int32(0)) # placeholder for reading back diff mm/s 1
+#     # cmd.extend(to_int32(0)) # placeholder for reading back power demand 0
+#     # cmd.extend(to_int32(0)) # placeholder for reading back power demand 1
+
+#     # set length of data (will be data + checksum, so: current packet - header + checksum = -1)
+#     cmd[1] = len(cmd) - 1
+
+#     # calculate checksum
+#     cmd.append(calc_checksum(cmd))
+
+#     return cmd
+
+def to_hexstring(bytestring):
+    return ' '.join(['{:02X}'.format(x) for x in bytestring])
+
+def generate_foc_drive_command(speed, steer):
+    # emanuel FOC hoverboard protocol (https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC)
+
+    # start frame
+    cmd = struct.pack('H', 0xAAAA)
 
     # direction values
-    cmd.extend(to_int16(steer))
+    cmd += struct.pack('h', steer)
 
-    # set length of data (will be data + checksum, so: current packet - header + checksum = -1)
-    cmd[1] = len(cmd) - 1
-
-    # calculate checksum
-    cmd.append(calc_checksum(cmd))
-
-    return cmd
-
-def generate_speed_command(speedL, speedR, maxPower = 600, minPower = -600, minSpeed = 40):
-    cmd = [0x02, 0x00, ord('W'), 0x03]
-
-    cmd.extend(to_int32(speedL))
-    cmd.extend(to_int32(speedR))
-    # cmd.extend(to_int32(maxPower))
-    # cmd.extend(to_int32(minPower))
-    # cmd.extend(to_int32(minSpeed))
-    # cmd.extend(to_int32(0)) # placeholder for reading back diff mm/s 0
-    # cmd.extend(to_int32(0)) # placeholder for reading back diff mm/s 1
-    # cmd.extend(to_int32(0)) # placeholder for reading back power demand 0
-    # cmd.extend(to_int32(0)) # placeholder for reading back power demand 1
-
-    # set length of data (will be data + checksum, so: current packet - header + checksum = -1)
-    cmd[1] = len(cmd) - 1
+    # speed values, -1000 to 1000
+    cmd += struct.pack('h', speed)
 
     # calculate checksum
-    cmd.append(calc_checksum(cmd))
+    checksum = 0xAAAA ^ steer ^ speed
+    cmd += struct.pack('H', checksum)
 
     return cmd
 
@@ -114,8 +135,8 @@ def main():
     rospy.init_node('hardware_driver')
 
     try:
-        ser1 = serial.Serial('/dev/ttyUSB0/', 115200, timeout=1)
-        ser2 = serial.Serial('/dev/ttyUSB1/', 115200, timeout=1)
+        ser1 = serial.Serial('/dev/ttyUSB0/', 38400, timeout=1)
+        ser2 = serial.Serial('/dev/ttyUSB1/', 38400, timeout=1)
         rospy.logwarn("Using serial interface: %s, %s", ser1.name, ser2.name)
         connected = True
     except Exception:
@@ -152,14 +173,14 @@ def main():
 
         # command_l = generate_drive_command(motorL * 1000, 0)
         # command_r = generate_drive_command(motorR * 1000, 0)
-        command_l = generate_speed_command(motorL, motorL)
-        command_r = generate_speed_command(motorR, motorR)
+        command_l = generate_foc_drive_command(motorL, 0)
+        command_r = generate_foc_drive_command(motorR, 0)
 
         
-        debug_str = "[Motor command] left:" + str(command_l) + "  right: " + str(command_r)
         rospy.loginfo(debug_str)
 
         if connected:
+            debug_str = "[Motor command] left:" + to_hexstring(command_l) + "  right: " + to_hexstring(command_r)
             ser1.write(command_l)
             ser2.write(command_r)
 
