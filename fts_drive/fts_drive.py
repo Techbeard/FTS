@@ -109,10 +109,13 @@ def callback(data):
 #     return cmd
 
 def to_hexstring(bytestring):
-    return ' '.join(['{:02X}'.format(x) for x in bytestring])
+    return ' '.join(['{:02X}'.format(ord(x)) for x in bytestring])
 
 def generate_foc_drive_command(speed, steer):
     # emanuel FOC hoverboard protocol (https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC)
+
+    speed = int(speed)
+    steer = int(steer)
 
     # start frame
     cmd = struct.pack('H', 0xAAAA)
@@ -124,7 +127,8 @@ def generate_foc_drive_command(speed, steer):
     cmd += struct.pack('h', speed)
 
     # calculate checksum
-    checksum = 0xAAAA ^ steer ^ speed
+    c = struct.unpack('HHH', cmd) # need to convert from int16 back to uint16 so python xors correctly
+    checksum = c[0] ^ c[1] ^ c[2]
     cmd += struct.pack('H', checksum)
 
     return cmd
@@ -135,8 +139,8 @@ def main():
     rospy.init_node('hardware_driver')
 
     try:
-        ser1 = serial.Serial('/dev/ttyUSB0/', 38400, timeout=1)
-        ser2 = serial.Serial('/dev/ttyUSB1/', 38400, timeout=1)
+        ser1 = serial.Serial('/dev/ttyUSB0', 38400, timeout=1)
+        ser2 = serial.Serial('/dev/ttyUSB1', 38400, timeout=1)
         rospy.logwarn("Using serial interface: %s, %s", ser1.name, ser2.name)
         connected = True
     except Exception:
@@ -150,6 +154,7 @@ def main():
     dir_tp = [0] * 10 # 10 sample low-pass for steering
 
     thread = threading.Thread(target=receiveSerial, args=[])
+    thread.daemon = True
     thread.start()
 
     while not rospy.is_shutdown():
@@ -177,10 +182,10 @@ def main():
         command_r = generate_foc_drive_command(motorR, 0)
 
         
-        rospy.loginfo(debug_str)
 
         if connected:
             debug_str = "[Motor command] left:" + to_hexstring(command_l) + "  right: " + to_hexstring(command_r)
+            rospy.loginfo(debug_str)
             ser1.write(command_l)
             ser2.write(command_r)
 
