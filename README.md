@@ -11,4 +11,9 @@ https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC
 https://github.com/ipa320/cob_driver/tree/kinetic_dev/cob_sick_s300
 
 
+## Verschiedene Fahrversuche und ähnliches
+
+https://twitter.com/TheVale98/status/1109271786888355840?s=20
+
+
 
