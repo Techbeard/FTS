@@ -1,5 +1,8 @@
 # FTS
 
+Für den Aktuellen Fahrnode fts_drive wird es in kürze einen Neuen Node geben der eigenständig [hier](https://github.com/Techbeard/hover)
+ verfügbar ist.
+
 ![alt text](Docs/Pictures/FTS_Fusion.png "FTS in Fusion 360")
 
 ## Verwendete Firmeware für die Antriebe 
